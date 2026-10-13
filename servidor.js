@@ -20,7 +20,7 @@ app.use(express.json());
 app.get('/', (requisicao, resposta) => {
 try{
     const lista = db.prepare("SELECT * FROM motos").all();
-  const termo = requisicao.query.motosearch?.toLowerCase().replace(/_/g, " ") || "";
+  const termo = requisicao.query.motosearch?.toLowerCase().replace(/_/g, " ") || "";a
   if (termo.trim() === "") {
         return resposta.json({ resultado: [], listas:lista })
     }
