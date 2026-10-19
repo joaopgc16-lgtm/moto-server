@@ -6,7 +6,8 @@ API em Node.js + Express + SQLite para cadastrar e buscar motos.
 
 ```bash
 npm install
-node servidor.js
+npm run devAPI //roda o servidor que controla o banco de dados
+npm run dev //roda o site de busca
 ```
 
 O servidor sobe em http://localhost:3000.
