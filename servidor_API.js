@@ -8,6 +8,13 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
    
+function exigirchave(requisicao, resposta, next){
+    console.log('recebida:', requisicao.headers['x-api-key']?.length, '| esperada:', process.env.CHAVE_ADMIN?.length)
+  chave = process.env.CHAVE_ADMIN
+if(requisicao.headers['x-api-key'] !== chave){
+  return resposta.status(401).json({mensagem_de_erro: "Chave de API inválida"})
+}next();
+}
 
 app.get('/', (requisicao, resposta) => {
 try{
@@ -27,7 +34,7 @@ try{
   resposta.status(500).json({mensagem_de_erro: "Não foi possível procurar."})
 }
 });
-app.post('/addmotos', (requisicao, resposta) => {
+app.post('/addmotos', exigirchave, (requisicao, resposta) => {
   try{
   const {nome, ano, marca, imagem, descricao} = requisicao.body
   if(!nome || !ano || !marca){
@@ -41,7 +48,7 @@ app.post('/addmotos', (requisicao, resposta) => {
 }
 });
 
-app.put('/modifymoto/:id', (requisicao, resposta) => {
+app.put('/modifymoto/:id', exigirchave, (requisicao, resposta) => {
 try{
   const id = parseInt(requisicao.params.id)
   const {nome, ano, marca, imagem, descricao} = requisicao.body
@@ -59,7 +66,7 @@ try{
  }
 })
 
-app.delete('/motosdelete/:id', (requisicao, resposta) => {
+app.delete('/motosdelete/:id', exigirchave, (requisicao, resposta) => {
   const id = parseInt(requisicao.params.id);
   try{
    const lista = db.prepare(`DELETE FROM motos WHERE id = ?`).run(id)

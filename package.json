@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon index.js"
+    "start:dev": "nodemon index.js",
+  "start": "node --env-file=.env servidor_API.js"
   },
   "keywords": [],
   "author": "",
