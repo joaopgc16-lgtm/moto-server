@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon index.js",
-  "start": "node --env-file=.env servidor_API.js"
-  },
+  "start": "node --env-file=.env servidor_API.js",
+  "devAPI": "node --watch --env-file=.env servidor_API.js",
+  "dev": "node --watch --env-file=.env servidor.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

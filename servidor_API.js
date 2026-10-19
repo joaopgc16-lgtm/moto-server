@@ -11,7 +11,7 @@ app.use(express.json());
 function exigirchave(requisicao, resposta, next){
     console.log('recebida:', requisicao.headers['x-api-key']?.length, '| esperada:', process.env.CHAVE_ADMIN?.length)
   chave = process.env.CHAVE_ADMIN
-if(requisicao.headers['x-api-key'] !== chave){
+if(requisicao.headers['x-api-key'] || undefined !== chave){
   return resposta.status(401).json({mensagem_de_erro: "Chave de API inválida"})
 }next();
 }
