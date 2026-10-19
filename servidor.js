@@ -12,17 +12,16 @@ app.use(express.json());
 app.get('/', (requisicao, resposta) => {
 try{
   const termo = requisicao.query.motosearch?.replace(/_/g, " ") || "";
-  const todas = db.prepare("SELECT * FROM motos").all()
   if (termo.trim() === "") {
-        return resposta.json({ resultado: [], listas: todas})
+     return resposta.json({ resultado: []})
     }
     const palavras = termo.split(' ').filter(Boolean)
-    const condicoes = palavras.map(() => "(nome || '' || ano || '' || marca) LIKE ?");
+    const condicoes = palavras.map(() => "(nome || ' ' || ano || ' ' || marca) LIKE ?");
     const valores = palavras.map((palavra) => `%${palavra}%`)
     const sql = "SELECT * FROM motos WHERE " + condicoes.join(" AND ")
     const lista = db.prepare(sql).all(...valores)
      console.log("VERSAO NOVA", requisicao.query);
-    resposta.status(200).json({listas: lista});
+    resposta.status(200).json({resultado: lista});
 } catch(erro){
   console.error(erro)
   resposta.status(500).json({mensagem_de_erro: "Não foi possível procurar."})
