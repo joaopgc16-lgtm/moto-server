@@ -10,40 +10,6 @@ app.use(cors());
 app.use(express.json());
 app.use(rotasMotos);
 
-   
-router.get('/', (requisicao, resposta) => {
-try{
-  const termo = requisicao.query.motosearch?.replace(/_/g, " ") || "";
-  if (termo.trim() === "") {
-     return resposta.json({ resultado: []})
-    }
-    const palavras = termo.split(' ').filter(Boolean)
-    const condicoes = palavras.map(() => "(nome || ' ' || ano || ' ' || marca) LIKE ?");
-    const valores = palavras.map((palavra) => `%${palavra}%`)
-    const sql = "SELECT * FROM motos WHERE " + condicoes.join(" AND ")
-    const lista = db.prepare(sql).all(...valores)
-     console.log("VERSAO NOVA", requisicao.query);
-    resposta.status(200).json({resultado: lista});
-} catch(erro){
-  console.error(erro)
-  resposta.status(500).json({mensagem_de_erro: "Não foi possível procurar."})
-}
-});
-
-router.get('/motos/:id', (requisicao, resposta) => {
-  try{
-    const id = parseInt(requisicao.params.id)
-    const moto = db.prepare("SELECT * FROM motos WHERE id = ?").get(id)
-    if(!moto){
-      return resposta.status(404).json({mensagem_de_erro: "ID inexistente"})
-    }
- router.json(moto)
-  } catch (erro) {
-    console.error(erro)
-    resposta.status(500).json({ mensagem_de_erro: 'Erro ao buscar a moto.' })
-  }
-})
-
-app.listen(3000, () => {
-    console.log('Servidor rodando em http://localhost:3000');
+app.listen(5000, () => {
+    console.log('Servidor rodando em http://localhost:5000');
 });
