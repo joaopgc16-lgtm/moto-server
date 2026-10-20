@@ -4,12 +4,14 @@ const db = new Database('motos.db');
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const rotasMotos = require('./rotas')
 
 app.use(cors());
 app.use(express.json());
-   
+app.use(rotasMotos);
 
-app.get('/', (requisicao, resposta) => {
+   
+router.get('/', (requisicao, resposta) => {
 try{
   const termo = requisicao.query.motosearch?.replace(/_/g, " ") || "";
   if (termo.trim() === "") {
@@ -28,14 +30,14 @@ try{
 }
 });
 
-app.get('/motos/:id', (requisicao, resposta) => {
+router.get('/motos/:id', (requisicao, resposta) => {
   try{
     const id = parseInt(requisicao.params.id)
     const moto = db.prepare("SELECT * FROM motos WHERE id = ?").get(id)
     if(!moto){
       return resposta.status(404).json({mensagem_de_erro: "ID inexistente"})
     }
- resposta.json(moto)
+ router.json(moto)
   } catch (erro) {
     console.error(erro)
     resposta.status(500).json({ mensagem_de_erro: 'Erro ao buscar a moto.' })
