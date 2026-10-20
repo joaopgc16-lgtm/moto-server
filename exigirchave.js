@@ -1,4 +1,4 @@
-git pull -function exigirchave(requisicao, resposta, next){
+function exigirchave(requisicao, resposta, next){
     console.log('recebida:', requisicao.headers['x-api-key']?.length, '| esperada:', process.env.CHAVE_ADMIN?.length)
   const chave = process.env.CHAVE_ADMIN
 if(!chave || requisicao.headers['x-api-key'] !== chave){
