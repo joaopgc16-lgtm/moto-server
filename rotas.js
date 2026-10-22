@@ -3,76 +3,88 @@ const db = require('./db');
 const exigirchave = require('./exigirchave');
 const router = express.Router();
 
-router.get('/', (requisicao, resposta) => {
+
+router.param('id', (requisicao, resposta, next, valor) => {
+  if (Number.isNaN(parseInt(valor))) {
+    return resposta.status(404).json({ mensagem_de_erro: 'ID INEXISTENTE' })
+  }
+  next()
+})
+  
+router.get('/', async (requisicao, resposta) => {
 try{
-    const lista = db.prepare("SELECT * FROM motos").all();
-  const termo = requisicao.query.motosearch?.toLowerCase().replace(/_/g, " ") || "";
+  const termo = requisicao.query.motosearch?.replace(/_/g, " ") || "";
   if (termo.trim() === "") {
-        return resposta.json({resultado: [], listas:lista })
+    const lista = await db.query('SELECT * FROM motos ORDER BY id')
+     return resposta.json({ resultado: [], listas: lista.rows })
     }
-  const resultados = lista.filter((moto) => {
-    const textoCompleto = `${moto.nome} ${moto.ano} ${moto.marca}`.toLowerCase();
-    return termo.split(" ").every((palavra) => textoCompleto.includes(palavra))
-  })
+    const palavras = termo.split(' ').filter(Boolean)
+    const condicoes = palavras.map((palavras, i) => `(nome || ' ' || ano || ' ' || marca) ILIKE $${i + 1}`);
+    const valores = palavras.map((palavra) => `%${palavra}%`)
+    const sql = "SELECT * FROM motos WHERE " + condicoes.join(" AND ")
+    const lista = await db.query(sql, valores)
      console.log("VERSAO NOVA", requisicao.query);
-    resposta.status(200).json({ resultado: resultados, listas: lista});
+    resposta.status(200).json({resultado: lista.rows});
 } catch(erro){
   console.error(erro)
   resposta.status(500).json({mensagem_de_erro: "Não foi possível procurar."})
 }
 });
 
-router.get('/motos/:id', (requisicao, resposta) => {
+router.get('/motos/:id', async (requisicao, resposta) => {
   try{
     const id = parseInt(requisicao.params.id)
-    const moto = db.prepare("SELECT * FROM motos WHERE id = ?").get(id)
-    if(!moto){
+    const moto = await db.query("SELECT * FROM motos WHERE id = $1", [id])
+    if(moto.rowCount === 0){
       return resposta.status(404).json({mensagem_de_erro: "ID inexistente"})
     }
- resposta.json(moto)
+ resposta.json(moto.rows[0])
   } catch (erro) {
     console.error(erro)
     resposta.status(500).json({ mensagem_de_erro: 'Erro ao buscar a moto.' })
   }
 });
 
-router.post('/addmotos', exigirchave, (requisicao, resposta) => {
+router.post('/addmotos', exigirchave, async (requisicao, resposta) => {
   try{
   const {nome, ano, marca, imagem, descricao} = requisicao.body
   if(!nome || !ano || !marca){
     return resposta.status(400).json({mensagem_de_erro:"É necessário inserir um nome, ano ou marca." })
   }
-  const lista = db.prepare("INSERT INTO motos (nome, ano, marca, imagem, descricao) VALUES(?,?,?,?,?)").run(nome, ano, marca, imagem ?? null, descricao ?? null)
-   resposta.status(201).json({ id: lista.lastInsertRowid, nome, ano, marca, imagem: imagem ?? null })
+  const lista = await db.query(`INSERT INTO motos (nome, ano, marca, imagem, descricao) VALUES($1 ,$2 ,$3 ,$4 ,$5) RETURNING *`, [nome, ano, marca, imagem ?? null, descricao ?? null])
+   resposta.status(201).json({ moto: lista.rows[0] })
 } catch(erro){
   console.error(erro)
-  resposta.status(500).json({mensagem_de_erro: "Não foi possível adicionar a moto."})
+  resposta.status(500).json({
+    mensagem_de_erro: "Não foi possível adicionar a moto.",
+    detalhe: erro.message
+  })
 }
 });
 
-router.put('/modifymoto/:id', exigirchave, (requisicao, resposta) => {
+router.put('/modifymoto/:id', exigirchave, async (requisicao, resposta) => {
 try{
   const id = parseInt(requisicao.params.id)
   const {nome, ano, marca, imagem, descricao} = requisicao.body
   if(!nome || !ano || !marca){
     return resposta.status(400).json({mensagem_de_erro:"É necessário inserir um nome, ano ou marca." })
   }
-   const lista = db.prepare(`UPDATE motos SET nome = ?, ano = ?, marca = ?, imagem = ?, descricao = ? WHERE id = ?`).run(nome, ano, marca, imagem ?? null, descricao ?? null, id)
-   if(lista.changes === 0){
+   const lista = await db.query(`UPDATE motos SET nome = $1, ano = $2, marca = $3, imagem = $4, descricao = $5 WHERE id = $6`, [nome, ano, marca, imagem ?? null, descricao ?? null, id])
+   if(lista.rowCount === 0){
    return resposta.status(404).json({mensagem_de_erro: "Não foi possível completar a alteração."})
   }
-  resposta.status(200).json(lista)
+  resposta.status(200).json(lista.rowCount > 0 ? {mensagem: `moto ${id} alterada`} : {mensagem: "Nenhuma alteração feita."} )
  }catch(erro){
   console.error(erro)
    resposta.status(500).json({mensagem_de_erro: "Erro ao alterar a moto."})
  }
 })
 
-router.delete('/motosdelete/:id', exigirchave, (requisicao, resposta) => {
+router.delete('/motosdelete/:id', exigirchave, async (requisicao, resposta) => {
   const id = parseInt(requisicao.params.id);
   try{
-   const lista = db.prepare(`DELETE FROM motos WHERE id = ?`).run(id)
-    if(lista.changes === 0){
+   const lista = await db.query(`DELETE FROM motos WHERE id = $1`, [id])
+    if(lista.rowCount === 0){
     return resposta.status(404).json({mensagem_de_erro: 'ID INEXISTENTE'})
   }
   resposta.json({mensagem: `moto ${id} removida`});

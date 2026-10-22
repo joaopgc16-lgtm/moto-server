@@ -1,3 +1,3 @@
-const Database = require('better-sqlite3');
-const db = new Database('motos.db');
-module.exports = db;
+const { Pool } = require('pg')
+
+module.exports = new Pool({ connectionString: process.env.DATABASE_URL })
