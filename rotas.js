@@ -1,8 +1,51 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const db = require('./db');
+const usuarios = require('./db_usuarios');
 const exigirchave = require('./exigirchave');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
+router.post('/cadastro', async (requisicao, resposta) => {
+  try {
+    const { usuario, senha, email } = requisicao.body;
+    if (!usuario || !senha || !email || senha.length < 8) {
+      return resposta.status(400).json({ mensagem_de_erro: "Informe usuário, email e senha (mínimo 8 caracteres)." });
+    }
+    const hash = await bcrypt.hash(senha, 10);
+    await usuarios.query("INSERT INTO usuarios (usuario, email, senha_hash) VALUES ($1, $2, $3)", [usuario, email, hash]);
+    resposta.status(201).json({ mensagem: "Conta criada." });
+  } catch (erro) {
+    if (erro.code === '23505') {
+      return resposta.status(409).json({ mensagem_de_erro: "Esse usuário já existe." });
+    }
+    console.error(erro);
+    resposta.status(500).json({ mensagem_de_erro: "Erro ao criar a conta." });
+  }
+});
+
+router.post('/login', async (requisicao, resposta) => {
+  try {
+    const { usuario, senha } = requisicao.body;
+    if (!usuario || !senha) {
+      return resposta.status(400).json({ mensagem_de_erro: "Informe usuário e senha." });
+    }
+    const resultado = await usuarios.query("SELECT id, usuario, email, senha_hash   FROM usuarios WHERE usuario = $1", [usuario]);
+    if (resultado.rowCount === 0) {
+      return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
+    }
+    const usuarioEncontrado = resultado.rows[0];
+    const senhaValida = await bcrypt.compare(senha, usuarioEncontrado.senha_hash);
+    if (!senhaValida) {
+      return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
+    }
+    const token = jwt.sign({ id: usuarioEncontrado.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    resposta.json({ mensagem: "Login realizado com sucesso.", token, usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email }});
+  } catch (erro) {
+    console.error(erro);
+    resposta.status(500).json({ mensagem_de_erro: "Erro ao realizar login." });
+  }
+});
 
 router.param('id', (requisicao, resposta, next, valor) => {
   if (Number.isNaN(parseInt(valor))) {

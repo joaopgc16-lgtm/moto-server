@@ -6,8 +6,7 @@ const origens = (process.env.FRONT_URLS ?? 'http://localhost:5173,http://localho
 
 app.use(cors({ origin: origens }))
 app.use(express.json());
-app.use(rotasMotos
-)
+app.use(rotasMotos)
 
 app.listen(process.env.PORT || 5000, () => {
   console.log('Servidor rodando')
