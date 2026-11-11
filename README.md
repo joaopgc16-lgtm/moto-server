@@ -10,7 +10,7 @@ npm install
 npm run dev //roda o site de busca
 ```
 
-O servidor sobe em http://localhost:3000.
+O servidor sobe em http://localhost:5000.
 
 ## Rotas
 
