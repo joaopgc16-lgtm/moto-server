@@ -47,6 +47,7 @@ router.post('/login', async (requisicao, resposta) => {
       return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
     }
     const token = jwt.sign({ id: usuarioEncontrado.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    resposta.cookie('token', token, opcoesCookie);
     resposta.json({ mensagem: "Login realizado com sucesso.", token, usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email }});
   } catch (erro) {
     console.error(erro);
