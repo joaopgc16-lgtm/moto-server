@@ -62,7 +62,7 @@ router.param('id', (requisicao, resposta, next, valor) => {
   next()
 })
   
-router.get('/buscar', async (requisicao, resposta) => {
+router.get('/', async (requisicao, resposta) => {
 try{
   const termo = requisicao.query.motosearch?.replace(/_/g, " ") || "";
   if (termo.trim() === "") {
