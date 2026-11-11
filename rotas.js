@@ -55,6 +55,13 @@ router.post('/login', async (requisicao, resposta) => {
   }
 });
 
+router.get('/eu', exigirLogin, (req, res) => res.json({ id: req.usuario.id, papel: req.usuario.papel }));
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', { ...opcoesCookie, maxAge: undefined });
+  res.json({ mensagem: 'Saiu.' });
+});
+
 router.param('id', (requisicao, resposta, next, valor) => {
   if (Number.isNaN(parseInt(valor))) {
     return resposta.status(404).json({ mensagem_de_erro: 'ID INEXISTENTE' })
