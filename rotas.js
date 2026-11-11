@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const cookie = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const db = require('./db');
 const usuarios = require('./db_usuarios');
 const exigirchave = require('./exigirchave');

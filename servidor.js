@@ -4,7 +4,8 @@ const cors = require('cors');
 const rotasMotos = require('./rotas');
 const origens = (process.env.FRONT_URLS ?? 'http://localhost:5173,http://localhost:5174').split(',')
 
-app.use(cors({ origin: origens }))
+app.use(cors({ origin: origens, credentials: true }));
+app.use(require('cookie-parser')());
 app.use(express.json());
 app.use(rotasMotos)
 
