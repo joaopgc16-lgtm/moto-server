@@ -12,7 +12,7 @@ const opcoesCookie = {
   sameSite: 'lax',
   maxAge: 60 * 60 * 1000
 };
-
+git
 router.post('/cadastro', async (requisicao, resposta) => {
   try {
     const { usuario, senha, email } = requisicao.body;
