@@ -1,17 +1,10 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const cookie = require('cookie-parser');
 const db = require('./db');
 const usuarios = require('./db_usuarios');
 const exigirchave = require('./exigirchave');
 const bcrypt = require('bcrypt');
 const router = express.Router();
-const opcoesCookie = {
-  httpOnly: true,                                  
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  maxAge: 60 * 60 * 1000
-};
 
 router.post('/cadastro', async (requisicao, resposta) => {
   try {
@@ -47,7 +40,6 @@ router.post('/login', async (requisicao, resposta) => {
       return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
     }
     const token = jwt.sign({ id: usuarioEncontrado.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    resposta.cookie('token', token, opcoesCookie);
     resposta.json({ mensagem: "Login realizado com sucesso.", token, usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email }});
   } catch (erro) {
     console.error(erro);
