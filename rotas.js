@@ -48,14 +48,14 @@ router.post('/login', async (requisicao, resposta) => {
     }
     const token = jwt.sign({ id: usuarioEncontrado.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     resposta.cookie('token', token, opcoesCookie);
-    resposta.json({ mensagem: "Login realizado com sucesso.", token, usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email }});
+    resposta.json({ mensagem: "Login realizado com sucesso.", usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email, papel: usuarioEncontrado.papel }});
   } catch (erro) {
     console.error(erro);
     resposta.status(500).json({ mensagem_de_erro: "Erro ao realizar login." });
   }
 });
 
-router.get('/eu', exigirchave, (req, res) => res.json({ id: req.usuario.id }));
+router.get('/eu', exigirchave, (req, res) => res.json({ id: req.usuario.id, papel: req.usuario.papel }));
 
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { ...opcoesCookie, maxAge: undefined });
