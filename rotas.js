@@ -6,13 +6,13 @@ const usuarios = require('./db_usuarios');
 const exigirchave = require('./exigirchave');
 const bcrypt = require('bcrypt');
 const router = express.Router();
+
 const opcoesCookie = {
   httpOnly: true,                                  
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   maxAge: 60 * 60 * 1000
 };
-git
 router.post('/cadastro', async (requisicao, resposta) => {
   try {
     const { usuario, senha, email } = requisicao.body;
@@ -55,7 +55,7 @@ router.post('/login', async (requisicao, resposta) => {
   }
 });
 
-router.get('/eu', exigirLogin, (req, res) => res.json({ id: req.usuario.id, papel: req.usuario.papel }));
+router.get('/eu', exigirLogin, (req, res) => res.json({ id: req.usuario.id }));
 
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { ...opcoesCookie, maxAge: undefined });
