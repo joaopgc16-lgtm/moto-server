@@ -37,7 +37,7 @@ router.post('/login', async (requisicao, resposta) => {
     if (!usuario || !senha) {
       return resposta.status(400).json({ mensagem_de_erro: "Informe usuário e senha." });
     }
-    const resultado = await usuarios.query("SELECT id, usuario, email, senha_hash   FROM usuarios WHERE usuario = $1", [usuario]);
+    const resultado = await usuarios.query("SELECT id, usuario, email, senha_hash, papel FROM usuarios WHERE usuario = $1", [usuario]);
     if (resultado.rowCount === 0) {
       return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
     }
@@ -46,17 +46,18 @@ router.post('/login', async (requisicao, resposta) => {
     if (!senhaValida) {
       return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
     }
-    const token = jwt.sign({ id: usuarioEncontrado.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: usuarioEncontrado.id, papel: usuarioEncontrado.papel },process.env.JWT_SECRET,{ expiresIn: '1h' });
     resposta.cookie('token', token, opcoesCookie);
-    resposta.json({ mensagem: "Login realizado com sucesso.", usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email, papel: usuarioEncontrado.papel }});
+    resposta.json({ mensagem: "Login realizado com sucesso.", token: token, usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email, papel: usuarioEncontrado.papel }});
   } catch (erro) {
     console.error(erro);
     resposta.status(500).json({ mensagem_de_erro: "Erro ao realizar login." });
   }
 });
 
-router.get('/eu', exigirchave, (req, res) => res.json({ id: req.usuario.id, papel: req.usuario.papel }));
-
+router.get('/eu', exigirchave, (req, res) => 
+  res.json({ id: req.usuario.id, papel: req.usuario.papel })
+);
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { ...opcoesCookie, maxAge: undefined });
   res.json({ mensagem: 'Saiu.' });
