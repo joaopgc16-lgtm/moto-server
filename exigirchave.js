@@ -1,10 +1,9 @@
-
 const jwt = require('jsonwebtoken');
 
 function exigirchave(requisicao, resposta, proximo) {
   const chave = process.env.JWT_SECRET;
 
-  const token = requisicao.cookies?.token;
+  const token = requisicao.cookie?.token;
 
   if (!token) {
     return resposta.status(401).json({ mensagem_de_erro: 'Chave de autenticação inválida.' });
