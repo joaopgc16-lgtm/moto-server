@@ -6,7 +6,7 @@ function exigirchave(requisicao, resposta, proximo) {
   const token = requisicao.cookies?.token;
 
   if (!token) {
-    return resposta.status(401).json({ mensagem_de_erro: 'Chave de autenticação inválida.' });
+    return resposta.status(401).json({ mensagem_de_erro: 'Sessão expirada.' });
   }
 
   try {

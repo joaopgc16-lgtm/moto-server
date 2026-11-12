@@ -48,7 +48,7 @@ router.post('/login', async (requisicao, resposta) => {
     }
     const token = jwt.sign({ id: usuarioEncontrado.id, papel: usuarioEncontrado.papel },process.env.JWT_SECRET,{ expiresIn: '1h' });
     resposta.cookie('token', token, opcoesCookie);
-    resposta.json({ mensagem: "Login realizado com sucesso.", token: token, usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email, papel: usuarioEncontrado.papel }});
+    resposta.json({ mensagem: "Login realizado com sucesso.", usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email, papel: usuarioEncontrado.papel }});
   } catch (erro) {
     console.error(erro);
     resposta.status(500).json({ mensagem_de_erro: "Erro ao realizar login." });
