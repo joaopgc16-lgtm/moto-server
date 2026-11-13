@@ -6,6 +6,7 @@ const usuarios = require('./db_usuarios');
 const exigirchave = require('./exigirchave');
 const bcrypt = require('bcrypt');
 const router = express.Router();
+const exigirAdmin = require('./exigiradmin');
 
 const opcoesCookie = {
   httpOnly: true,                                  
@@ -90,7 +91,7 @@ try{
 }
 });
 
-router.get('/motos/:id', async (requisicao, resposta) => {
+router.get('/motos/:id',exigirchave, exigirAdmin, async (requisicao, resposta) => {
   try{
     const id = parseInt(requisicao.params.id)
     const moto = await db.query("SELECT * FROM motos WHERE id = $1", [id])
@@ -104,7 +105,7 @@ router.get('/motos/:id', async (requisicao, resposta) => {
   }
 });
 
-router.post('/addmotos', exigirchave, async (requisicao, resposta) => {
+router.post('/addmotos', exigirchave, exigirAdmin, async (requisicao, resposta) => {
   try{
   const {nome, ano, marca, imagem, descricao} = requisicao.body
   if(!nome || !ano || !marca){
@@ -121,7 +122,7 @@ router.post('/addmotos', exigirchave, async (requisicao, resposta) => {
 }
 });
 
-router.put('/modifymoto/:id', exigirchave, async (requisicao, resposta) => {
+router.put('/modifymoto/:id', exigirchave, exigirAdmin, async (requisicao, resposta) => {
 try{
   const id = parseInt(requisicao.params.id)
   const {nome, ano, marca, imagem, descricao} = requisicao.body
@@ -139,7 +140,7 @@ try{
  }
 })
 
-router.delete('/motosdelete/:id', exigirchave, async (requisicao, resposta) => {
+router.delete('/motosdelete/:id', exigirchave, exigirAdmin, async (requisicao, resposta) => {
   const id = parseInt(requisicao.params.id);
   try{
    const lista = await db.query(`DELETE FROM motos WHERE id = $1`, [id])
