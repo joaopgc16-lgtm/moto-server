@@ -91,7 +91,7 @@ try{
 }
 });
 
-router.get('/motos/:id',exigirchave, exigirAdmin, async (requisicao, resposta) => {
+router.get('/motos/:id', async (requisicao, resposta) => {
   try{
     const id = parseInt(requisicao.params.id)
     const moto = await db.query("SELECT * FROM motos WHERE id = $1", [id])
