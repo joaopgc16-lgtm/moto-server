@@ -47,7 +47,7 @@ router.post('/login', async (requisicao, resposta) => {
     if (!senhaValida) {
       return resposta.status(401).json({ mensagem_de_erro: "Usuário ou senha incorretos." });
     }
-    const token = jwt.sign({ id: usuarioEncontrado.id, papel: usuarioEncontrado.papel },process.env.JWT_SECRET,{ expiresIn: '1h' });
+    const token = jwt.sign({ id: usuarioEncontrado.id, papel: usuarioEncontrado.papel, usuario: usuarioEncontrado.usuario },process.env.JWT_SECRET,{ expiresIn: '1h' });
     resposta.cookie('token', token, opcoesCookie);
     resposta.json({ mensagem: "Login realizado com sucesso.", usuario: { id: usuarioEncontrado.id, usuario: usuarioEncontrado.usuario, email: usuarioEncontrado.email, papel: usuarioEncontrado.papel }});
   } catch (erro) {
@@ -57,7 +57,7 @@ router.post('/login', async (requisicao, resposta) => {
 });
 
 router.get('/eu', exigirchave, (req, res) => 
-  res.json({usuario: {id: req.usuario.id, papel: req.usuario.papel, usuario: req.usuario.usuario }})  
+  res.json({usuario: { id: req.usuario.id, papel: req.usuario.papel, usuario: req.usuario.usuario }})  
 );
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { ...opcoesCookie, maxAge: undefined });
