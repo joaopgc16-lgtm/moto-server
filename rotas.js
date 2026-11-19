@@ -59,7 +59,7 @@ router.post('/login', async (requisicao, resposta) => {
 router.get('/eu', exigirchave, (req, res) => 
   res.json({usuario: { id: req.usuario.id, papel: req.usuario.papel, usuario: req.usuario.usuario }})  
 );
-router.post('/logout', (req, res) => {
+router.post('/logout', exigirchave, (req, res) => {
   res.clearCookie('token', { ...opcoesCookie, maxAge: undefined });
   res.json({ mensagem: 'Saiu.' });
 });
