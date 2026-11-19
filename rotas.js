@@ -117,7 +117,6 @@ router.post('/addmotos', exigirchave, exigirAdmin, async (requisicao, resposta) 
   console.error(erro)
   resposta.status(500).json({
     mensagem_de_erro: "Não foi possível adicionar a moto.",
-    detalhe: erro.message
   })
 }
 });
